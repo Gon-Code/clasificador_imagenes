@@ -12,11 +12,15 @@ Este es un pequeño visor de imágenes interactivo en Python que permite **clasi
 - Python 3.x
 - Librería `Pillow`
 
-Instala Pillow con:
+### ▶️ Crear entorno virtual (opcional pero recomendado)
 
 ```bash
-pip install pillow
+python -m venv venv
+source venv/bin/activate      # En Linux/macOS
+venv\Scripts\activate         # En Windows
+pip install -r requirements.txt
 ```
+
 # 📂 Estructura esperada de carpetas
 
 ```plaintext
