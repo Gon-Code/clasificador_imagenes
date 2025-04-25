@@ -53,7 +53,7 @@ class VisorImagenes:
 
         nombre_original = self.imagenes[self.index]
         nombre_base, extension = os.path.splitext(nombre_original)
-        nuevo_nombre = f"{nombre_base}-{sufijo}{extension}"
+        nuevo_nombre = f"{sufijo}-{nombre_base}{extension}"
 
         origen = os.path.join(DIRECTORIO_ORIGEN, nombre_original)
         destino = os.path.join(DIRECTORIO_DESTINO, nuevo_nombre)
