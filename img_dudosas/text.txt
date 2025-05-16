@@ -1,0 +1,1 @@
+Aqui se guardaran las imagenes en las cuales no este Seguro si son o no un evento.

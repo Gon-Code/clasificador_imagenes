@@ -49,6 +49,8 @@ Usa las teclas de flecha:
 
 ➡️ Flecha derecha: renombra la imagen con el prefijo 1- y mueve la imagen a la carpeta img_clasificadas.
 
+2️⃣ Numero 2: renombra la imagen con el prefijo 2- y mueve la imagen a la carpeta img_dudosas.
+
 # 📊 Progreso
 
 El visor muestra un contador como:
