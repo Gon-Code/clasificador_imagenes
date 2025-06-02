@@ -1,3 +1,6 @@
-#Ambiente virtual de Python
+# Ambiente virtual de Python
 
 venv/
+
+# Archivos ignorados
+*.jpg
