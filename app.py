@@ -1,6 +1,7 @@
 import os
 import shutil
 import tkinter as tk
+from tkinter import simpledialog
 from PIL import Image, ImageTk
 
 # Directorios
@@ -11,13 +12,17 @@ DIRECTORIO_DUDOSAS = os.path.join(os.path.dirname(__file__), "img_dudosas")
 
 EXTENSIONES_VALIDAS = ('.jpg', '.jpeg', '.png', '.bmp', '.gif')
 
+# Funcion auxiliar para eliminar caracteres no deseados en nombres de archivos
+def sanitizar(texto):
+    return texto.replace(":", "-").replace("/", "-").replace("\\", "-").replace(" ", "-").strip()
+
 class VisorImagenes:
     def __init__(self, master):
         self.master = master
         self.master.title("Visor de Imágenes")
 
-        if not os.path.exists(DIRECTORIO_DESTINO):
-            os.makedirs(DIRECTORIO_DESTINO)
+        os.makedirs(DIRECTORIO_DESTINO, exist_ok=True)
+        os.makedirs(DIRECTORIO_DUDOSAS, exist_ok=True)
 
         self.imagenes = [f for f in os.listdir(DIRECTORIO_ORIGEN) if f.lower().endswith(EXTENSIONES_VALIDAS)]
         self.imagenes.sort()
@@ -35,6 +40,7 @@ class VisorImagenes:
         self.master.bind("<Left>", self.marcar_como_0)
         self.master.bind("<Right>", self.marcar_como_1)
         self.master.bind("<Key-2>", self.marcar_como_2)
+        self.master.bind("<e>", self.marcar_como_evento)  # Clasificación especial
 
     def cargar_imagen(self):
         if self.index >= self.total:
@@ -50,33 +56,96 @@ class VisorImagenes:
 
         self.label_contador.config(text=f"Imagen {self.index + 1} de {self.total}")
 
-    def renombrar_y_mover_imagen(self, sufijo, directorio_destino):
+    def renombrar_y_mover_imagen(self, nuevo_nombre, directorio_destino):
         if self.index >= self.total:
             return
 
         nombre_original = self.imagenes[self.index]
-        nombre_base, extension = os.path.splitext(nombre_original)
-        nuevo_nombre = f"{sufijo}-{nombre_base}{extension}"
-    
         origen = os.path.join(DIRECTORIO_ORIGEN, nombre_original)
         destino = os.path.join(directorio_destino, nuevo_nombre)
-    
-        if not os.path.exists(directorio_destino):
-            os.makedirs(directorio_destino)
-    
-        os.rename(origen, destino)
+
+        shutil.move(origen, destino)
 
     def marcar_como_0(self, event):
-        self.renombrar_y_mover_imagen('0', DIRECTORIO_DESTINO)
+        self.mover_con_sufijo('0', DIRECTORIO_DESTINO)
         self.siguiente_imagen()
 
     def marcar_como_1(self, event):
-        self.renombrar_y_mover_imagen('1', DIRECTORIO_DESTINO)
+        self.mover_con_sufijo('1', DIRECTORIO_DESTINO)
         self.siguiente_imagen()
-        
+
     def marcar_como_2(self, event):
-        self.renombrar_y_mover_imagen('2', DIRECTORIO_DUDOSAS)
+        self.mover_con_sufijo('2', DIRECTORIO_DUDOSAS)
         self.siguiente_imagen()
+
+    def mover_con_sufijo(self, sufijo, directorio_destino):
+        nombre_original = self.imagenes[self.index]
+        nombre_base, extension = os.path.splitext(nombre_original)
+        nuevo_nombre = f"{sufijo}-{nombre_base}{extension}"
+        self.renombrar_y_mover_imagen(nuevo_nombre, directorio_destino)
+
+    def marcar_como_evento(self, event):
+        nombre_original = self.imagenes[self.index]
+        id_afiche, _ = os.path.splitext(nombre_original)
+
+        # Crear ventana para ingreso de datos
+        datos = self.pedir_datos_evento(id_afiche)
+        if not datos:
+            return
+        
+        (
+            fecha_evento,
+            fecha_escrita,
+            hora_evento,
+            hora_escrita,
+            lugar
+        ) = datos
+
+        fecha_evento = sanitizar(fecha_evento)
+        fecha_escrita = sanitizar(fecha_escrita)
+        hora_evento = sanitizar(hora_evento)
+        hora_escrita = sanitizar(hora_escrita)
+        lugar = sanitizar(lugar)
+        
+        nombre_final = f"1_{id_afiche}_{fecha_evento}_{fecha_escrita}_{hora_evento}_{hora_escrita}_{lugar}.png"
+        self.renombrar_y_mover_imagen(nombre_final, DIRECTORIO_DESTINO)
+        self.siguiente_imagen()
+
+    def pedir_datos_evento(self, id_afiche):
+        # Ventana de diálogo personalizada
+        top = tk.Toplevel(self.master)
+        top.title(f"Formulario para Evento - {id_afiche}")
+        top.grab_set()  # Bloquea la ventana principal
+
+        campos = {
+            "Fecha evento (dd-mm-aaaa)": "",
+            "Fecha escrita": "",
+            "Hora evento (HH:MM 24hrs)": "",
+            "Hora escrita": "",
+            "Lugar": ""
+        }
+
+        entradas = {}
+        for i, (label_text, _) in enumerate(campos.items()):
+            tk.Label(top, text=label_text).grid(row=i, column=0, sticky="w", padx=5, pady=5)
+            entrada = tk.Entry(top, width=30)
+            entrada.grid(row=i, column=1, padx=5, pady=5)
+            entradas[label_text] = entrada
+
+        resultado = []
+
+        def confirmar():
+            for label in campos:
+                texto = entradas[label].get().strip().replace(" ", "_")
+                if not texto:
+                    return
+                resultado.append(texto)
+            top.destroy()
+
+        tk.Button(top, text="Aceptar", command=confirmar).grid(columnspan=2, pady=10)
+        top.wait_window()
+
+        return resultado if len(resultado) == 5 else None
 
     def siguiente_imagen(self):
         self.index += 1
