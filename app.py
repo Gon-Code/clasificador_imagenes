@@ -107,7 +107,7 @@ class VisorImagenes:
         hora_escrita = sanitizar(hora_escrita)
         lugar = sanitizar(lugar)
         
-        nombre_final = f"1_{id_afiche}_{fecha_evento}_{fecha_escrita}_{hora_evento}_{hora_escrita}_{lugar}.png"
+        nombre_final = f"1_{id_afiche}_{fecha_evento}_{fecha_escrita}_{hora_evento}_{hora_escrita}_{lugar}.jpg"
         self.renombrar_y_mover_imagen(nombre_final, DIRECTORIO_DESTINO)
         self.siguiente_imagen()
 
